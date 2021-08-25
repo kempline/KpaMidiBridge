@@ -6,6 +6,10 @@
               id="czenBA" jucerFormatVersion="1">
   <MAINGROUP id="MW0smC" name="KpaMidiBridge">
     <GROUP id="{9ECF13AC-8A72-65F0-DA5C-0E026C150F76}" name="Source">
+      <FILE id="hbu87W" name="EffectButtonSettings.cpp" compile="1" resource="0"
+            file="Source/EffectButtonSettings.cpp"/>
+      <FILE id="e1SATi" name="EffectButtonSettings.h" compile="0" resource="0"
+            file="Source/EffectButtonSettings.h"/>
       <FILE id="rBoiXl" name="Kpa.cpp" compile="1" resource="0" file="Source/Kpa.cpp"/>
       <FILE id="bRYOWd" name="Kpa.h" compile="0" resource="0" file="Source/Kpa.h"/>
       <FILE id="WZFLTJ" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>

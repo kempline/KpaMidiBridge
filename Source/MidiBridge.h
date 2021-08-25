@@ -1,6 +1,8 @@
 
 #pragma once
 #include "Kpa.h"
+#include "EffectButtonSettings.h"
+
 #define BAND_HELPER_NEXT_SONG_CC 83
 #define BAND_HELPER_MIDI_CHANNEL 3
 
@@ -27,7 +29,8 @@ class KpaMidiBridge  : public Component,
 public:
     //==============================================================================
     KpaMidiBridge()
-        : midiKeyboard       (keyboardState, MidiKeyboardComponent::horizontalKeyboard),
+        : I("I"), II("II"), III("III"), IIII("IIII"),
+          midiKeyboard       (keyboardState, MidiKeyboardComponent::horizontalKeyboard),
           midiInputSelector  (new MidiDeviceListBox ("Midi Input Selector",  *this, true)),
           midiOutputSelector (new MidiDeviceListBox ("Midi Output Selector", *this, false)),
           startTime (juce::Time::getMillisecondCounterHiRes() * 0.001)
@@ -66,7 +69,14 @@ public:
 
         addAndMakeVisible (midiInputSelector .get());
         addAndMakeVisible (midiOutputSelector.get());
+        
+        addAndMakeVisible (I);
+        addAndMakeVisible (II);
+        addAndMakeVisible (III);
+        addAndMakeVisible (IIII);
 
+        midiIn->start();
+        
         setSize (732, 520);
 
         startTimer (500);
@@ -95,6 +105,10 @@ public:
         MidiMessage m (MidiMessage::noteOn (midiChannel, midiNoteNumber, velocity));
         m.setTimeStamp (Time::getMillisecondCounterHiRes() * 0.001);
         sendToOutputs (m);
+        
+        m = MidiMessage(MidiMessage::controllerEvent(BAND_HELPER_MIDI_CHANNEL+1, BAND_HELPER_NEXT_SONG_CC, 127));
+        m.setTimeStamp (Time::getMillisecondCounterHiRes() * 0.001);
+        sendToOutputs(m);
     }
 
     void handleNoteOff (MidiKeyboardState*, int midiChannel, int midiNoteNumber, float velocity) override
@@ -127,15 +141,31 @@ public:
         pairButton.setBounds (margin, (getHeight() / 2) - (margin + 24),
                               getWidth() - (2 * margin), 24);
 
-        outgoingMidiLabel.setBounds (margin, getHeight() / 2, getWidth() - (2 * margin), 24);
+        /*outgoingMidiLabel.setBounds (margin, getHeight() / 2, getWidth() - (2 * margin), 24);
+        */
+        I.setBounds (margin, getHeight() / 2, getWidth() - (2 * margin), 140);
+         /*
         midiKeyboard.setBounds (margin, (getHeight() / 2) + (24 + margin), getWidth() - (2 * margin), 64);
-
-        incomingMidiLabel.setBounds (margin, (getHeight() / 2) + (24 + (2 * margin) + 64),
+         */
+        /*II.setBounds (margin, (getHeight() / 2) + (24 + margin), getWidth() - (2 * margin), 64);
+        */
+        II.setBounds (margin + getWidth() / 2, getHeight() / 2, getWidth() - (2 * margin), 140);
+        
+        III.setBounds (margin, getHeight() / 2 + 120, getWidth() - (2 * margin), 140);
+        
+        IIII.setBounds (margin + getWidth() / 2, getHeight() / 2 + 120, getWidth() - (2 * margin), 140);
+         /*
+         incomingMidiLabel.setBounds (margin, (getHeight() / 2) + (24 + (2 * margin) + 64),
                                      getWidth() - (2 * margin), 24);
 
+          */
+        
+        /*
         auto y = (getHeight() / 2) + ((2 * 24) + (3 * margin) + 64);
         midiMonitor.setBounds (margin, y,
                                getWidth() - (2 * margin), getHeight() - y - margin);
+        
+        */
     }
 
     void openDevice (bool isInput, int index)
@@ -303,8 +333,7 @@ private:
             case(3): {
                 MidiMessage m (MidiMessage::controllerEvent(BAND_HELPER_MIDI_CHANNEL, BAND_HELPER_NEXT_SONG_CC, 127));
                 m.setTimeStamp (Time::getMillisecondCounterHiRes() * 0.001 - startTime);
-                Time::waitForMillisecondCounter(Time::getMillisecondCounter() + 3000);
-                sendToOutputs(m);
+                midiOut->sendMessageNow(m);
                 break;
             }
             default:
@@ -314,6 +343,13 @@ private:
     
     void handleIncomingMidiMessage (MidiInput* /*source*/, const MidiMessage& message) override
     {
+        if(message.isMidiClock())
+            return;
+        
+        if(message.getRawDataSize() == 1)
+            if(message.getRawData()[0] == 0xfe)
+                return;
+        
         // This is called on the MIDI thread
         const ScopedLock sl (midiMonitorLock);
         incomingMessages.add (message);
@@ -455,11 +491,16 @@ private:
             // add all currently plugged-in devices to the device list
             for (auto& newDevice : availableDevices)
             {
+                
                 MidiDeviceListEntry::Ptr entry = findDevice (newDevice, isInputDeviceList);
 
                 if (entry == nullptr)
                     entry = new MidiDeviceListEntry (newDevice);
 
+                /*
+                if(0 == entry->deviceInfo.name.compare("KpaMidiBridge"))
+                    continue;
+                */
                 newDeviceList.add (entry);
             }
 
@@ -493,12 +534,17 @@ private:
     MidiKeyboardComponent midiKeyboard;
     TextEditor midiMonitor  { "MIDI Monitor" };
     TextButton pairButton   { "MIDI Bluetooth devices..." };
+    
+    std::unique_ptr<MidiInput> midiIn =  MidiInput::createNewDevice    ("KpaMidiBridge", this);
+    std::unique_ptr<MidiOutput> midiOut =  MidiOutput::createNewDevice    ("KpaMidiBridge");
 
     std::unique_ptr<MidiDeviceListBox> midiInputSelector, midiOutputSelector;
     ReferenceCountedArray<MidiDeviceListEntry> midiInputs, midiOutputs;
 
     CriticalSection midiMonitorLock;
     Array<MidiMessage> incomingMessages;
+    
+    EffectButtonSettings I, II, III, IIII;
     
     double startTime;
     
