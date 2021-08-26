@@ -109,7 +109,8 @@
     </ANDROIDSTUDIO>
     <XCODE_IPHONE targetFolder="Builds/iOS" customXcodeResourceFolders="/Users/sbg/JUCE/examples/Assets"
                   iosBluetoothPermissionNeeded="1" iosBluetoothPermissionText="$(PRODUCT_NAME) requires access to BLE devices."
-                  iosBackgroundAudio="1" iosBackgroundBle="1">
+                  iosBackgroundAudio="1" iosBackgroundBle="1" iosScreenOrientation="UIInterfaceOrientationLandscapeLeft,UIInterfaceOrientationLandscapeRight,UIInterfaceOrientationPortrait,UIInterfaceOrientationPortraitUpsideDown"
+                  iPadScreenOrientation="UIInterfaceOrientationLandscapeLeft,UIInterfaceOrientationLandscapeRight,UIInterfaceOrientationPortrait,UIInterfaceOrientationPortraitUpsideDown">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="MidiBridge"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="MidiBridge"/>

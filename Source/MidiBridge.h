@@ -70,13 +70,20 @@ public:
         addAndMakeVisible (midiInputSelector .get());
         addAndMakeVisible (midiOutputSelector.get());
         
-        addAndMakeVisible (I);
-        addAndMakeVisible (II);
-        addAndMakeVisible (III);
-        addAndMakeVisible (IIII);
+		
+		initProperties();
+		effectButtonSettings.add(&I);
+		effectButtonSettings.add(&II);
+		effectButtonSettings.add(&III);
+		effectButtonSettings.add(&IIII);
+		
+		for(auto effectButton: effectButtonSettings) {
+			effectButton->setApplicationProperties(&applicationProperties);
+			addAndMakeVisible (*effectButton);
+		}
 
         midiIn->start();
-        
+		
         setSize (732, 520);
 
         startTimer (500);
@@ -93,6 +100,18 @@ public:
         midiOutputSelector.reset();
     }
 
+	void initProperties()
+	{
+		PropertiesFile::Options options;
+		options.applicationName = ProjectInfo::projectName;
+		options.filenameSuffix = ".settings";
+		options.osxLibrarySubFolder = "Application Support";
+		options.folderName = File::getSpecialLocation(File::SpecialLocationType::userApplicationDataDirectory).getChildFile(ProjectInfo::projectName).getFullPathName();
+		options.storageFormat = PropertiesFile::storeAsXML;
+		
+		applicationProperties.setStorageParameters(options);
+	}
+	
     //==============================================================================
     void timerCallback() override
     {
@@ -143,17 +162,17 @@ public:
 
         /*outgoingMidiLabel.setBounds (margin, getHeight() / 2, getWidth() - (2 * margin), 24);
         */
-        I.setBounds (margin, getHeight() / 2, getWidth() - (2 * margin), 140);
+        I.setBounds (margin, getHeight() / 2, getWidth()/2 - (2 * margin), 160);
          /*
         midiKeyboard.setBounds (margin, (getHeight() / 2) + (24 + margin), getWidth() - (2 * margin), 64);
          */
         /*II.setBounds (margin, (getHeight() / 2) + (24 + margin), getWidth() - (2 * margin), 64);
         */
-        II.setBounds (margin + getWidth() / 2, getHeight() / 2, getWidth() - (2 * margin), 140);
+        II.setBounds (margin + getWidth() / 2, getHeight() / 2, getWidth() / 2 - (2 * margin), 160);
         
-        III.setBounds (margin, getHeight() / 2 + 120, getWidth() - (2 * margin), 140);
+        III.setBounds (margin, getHeight() / 2 + 160, getWidth() /2 - (2 * margin), 160);
         
-        IIII.setBounds (margin + getWidth() / 2, getHeight() / 2 + 120, getWidth() - (2 * margin), 140);
+        IIII.setBounds (margin + getWidth() / 2, getHeight() / 2 + 160, getWidth() /2 - (2 * margin), 160);
          /*
          incomingMidiLabel.setBounds (margin, (getHeight() / 2) + (24 + (2 * margin) + 64),
                                      getWidth() - (2 * margin), 24);
@@ -322,23 +341,23 @@ private:
     //==============================================================================
     void onEffectButtonClicked(uint8 buttonNo, uint8 state) {
         printf("Effect button %d clicked, value: %d\n", buttonNo, state);
-        if(0 == state)
-            return;
-        
-        switch(buttonNo) {
-            case(0):
-            case(1):
-            case(2):
-                break;
-            case(3): {
-                MidiMessage m (MidiMessage::controllerEvent(BAND_HELPER_MIDI_CHANNEL, BAND_HELPER_NEXT_SONG_CC, 127));
-                m.setTimeStamp (Time::getMillisecondCounterHiRes() * 0.001 - startTime);
-                midiOut->sendMessageNow(m);
-                break;
-            }
-            default:
-                break;
-        }
+		if(0 == state) {
+			for(const auto effectButton: effectButtonSettings) {
+				effectButton->setColour (juce::GroupComponent::textColourId, juce::Colours::orange);
+				effectButton->setColour (juce::GroupComponent::outlineColourId, juce::Colours::orange);
+			}
+			return;
+		}
+		if(buttonNo >= 0 && buttonNo <=3) {
+			effectButtonSettings[buttonNo]->setColour (juce::GroupComponent::textColourId, juce::Colours::red);
+			effectButtonSettings[buttonNo]->setColour (juce::GroupComponent::outlineColourId, juce::Colours::red);
+			
+			MidiMessage m = effectButtonSettings[buttonNo]->getMidiMessage();
+			if(!m.isMidiContinue()) {
+				m.setTimeStamp (Time::getMillisecondCounterHiRes() * 0.001 - startTime);
+				midiOut->sendMessageNow(m);
+			}
+		}
     }
     
     void handleIncomingMidiMessage (MidiInput* /*source*/, const MidiMessage& message) override
@@ -526,6 +545,7 @@ private:
     }
 
     //==============================================================================
+	ApplicationProperties applicationProperties;
     Label midiInputLabel    { "Midi Input Label",  "MIDI Input:" };
     Label midiOutputLabel   { "Midi Output Label", "MIDI Output:" };
     Label incomingMidiLabel { "Incoming Midi Label", "Received MIDI messages:" };
@@ -545,6 +565,7 @@ private:
     Array<MidiMessage> incomingMessages;
     
     EffectButtonSettings I, II, III, IIII;
+	Array<EffectButtonSettings*> effectButtonSettings;
     
     double startTime;
     
