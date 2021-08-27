@@ -197,8 +197,8 @@ public:
             case 1:
                 param1Label.setVisible(true);
                 param1ComboBox.setVisible(true);
-                for(uint8 i=0; i<127; i++) {
-                    param1ComboBox.addItem(String(i+1), i+1);
+                for(uint8 i=0; i<128; i++) {
+                    param1ComboBox.addItem(String(i), i+1);
                 }
                 
                 param1Label.setText("Program: ", NotificationType::dontSendNotification);
@@ -215,9 +215,9 @@ public:
                 param2Label.setVisible(true);
                 param2Label.setText("Value: ", NotificationType::dontSendNotification);
                 param2ComboBox.setVisible(true);
-                for(uint8 i=0; i<127; i++) {
-                    param1ComboBox.addItem(String(i+1), i+1);
-                    param2ComboBox.addItem(String(i+1), i+1);
+                for(uint8 i=0; i<128; i++) {
+                    param1ComboBox.addItem(String(i), i+1);
+                    param2ComboBox.addItem(String(i), i+1);
                 }
                 midiChannelLabel.setVisible(true);
                 midiChannelComboBox.setVisible(true);
@@ -231,13 +231,13 @@ public:
                 param2ComboBox.setVisible(false);
                 param1ComboBox.addItem("Stop", 1);
                 param1ComboBox.addItem("Play", 2);
-                param1ComboBox.addItem("Deferred Play (play after no longer busy)", 3);
+                param1ComboBox.addItem("Deferred Play", 3);
                 param1ComboBox.addItem("Fast Forward", 4);
                 param1ComboBox.addItem("Rewind", 5);
-                param1ComboBox.addItem("Record Strobe (AKA [[Punch in/out|Punch In]])", 6);
-                param1ComboBox.addItem("Record Exit (AKA [[Punch out (music)|Punch out]]", 7);
-                param1ComboBox.addItem("Record Pause", 8);
-                param1ComboBox.addItem("Pause (pause playback)", 9);
+                param1ComboBox.addItem("Record Start", 6);
+                param1ComboBox.addItem("Record Stop", 7);
+                // param1ComboBox.addItem("Record Pause", 8);
+                param1ComboBox.addItem("Pause", 9);
                 midiChannelLabel.setVisible(true);
                 midiChannelComboBox.setVisible(true);
 				restoreUiSettingsEx();
@@ -258,23 +258,31 @@ public:
 		
 		switch(messageTypeComboBox.getSelectedItemIndex()) {
 			case 1: {
-				
-				MidiMessage m = MidiMessage::programChange(
-														   midiChannelComboBox.getSelectedItemIndex(),
-														   param1ComboBox.getSelectedItemIndex());
+                // NOTE: midi channel index is DIFFERENT
+                auto channel = midiChannelComboBox.getSelectedId();
+                auto program = param1ComboBox.getSelectedItemIndex();
+				MidiMessage m = MidiMessage::programChange(channel + 1, program);
 				return m;
 			}
 			case 2: {
-				MidiMessage m = MidiMessage::MidiMessage::controllerEvent(
-														   midiChannelComboBox.getSelectedItemIndex(),
-														   param1ComboBox.getSelectedItemIndex(),
-														   param2ComboBox.getSelectedItemIndex());
+                // NOTE: midi channel index is DIFFERENT
+                auto channel = midiChannelComboBox.getSelectedId();
+                auto controller = param1ComboBox.getSelectedItemIndex();
+                auto value = param2ComboBox.getSelectedItemIndex();
+				MidiMessage m = MidiMessage::controllerEvent(channel + 1, controller, value);
 				return m;
 			}
-				
+            case 3: {
+                // NOTE: midi channel index is DIFFERENT
+                auto channel = midiChannelComboBox.getSelectedId();
+                auto command = param1ComboBox.getSelectedId();
+                MidiMessage::MidiMachineControlCommand mmc = MidiMessage::MidiMachineControlCommand(command);
+                MidiMessage m = MidiMessage::midiMachineControlCommand(mmc);
+                return m;
+            }
 			case 99:
 			default: {
-				return MidiMessage::MidiMessage::midiContinue();
+				return MidiMessage::midiContinue();
 				break;
 			}
 				

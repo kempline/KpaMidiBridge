@@ -70,7 +70,6 @@ public:
         addAndMakeVisible (midiInputSelector .get());
         addAndMakeVisible (midiOutputSelector.get());
         
-		
 		initProperties();
 		effectButtonSettings.add(&I);
 		effectButtonSettings.add(&II);
@@ -162,12 +161,13 @@ public:
 
         /*outgoingMidiLabel.setBounds (margin, getHeight() / 2, getWidth() - (2 * margin), 24);
         */
-        I.setBounds (margin, getHeight() / 2, getWidth()/2 - (2 * margin), 160);
-         /*
+        
+        /*
         midiKeyboard.setBounds (margin, (getHeight() / 2) + (24 + margin), getWidth() - (2 * margin), 64);
          */
-        /*II.setBounds (margin, (getHeight() / 2) + (24 + margin), getWidth() - (2 * margin), 64);
-        */
+        
+        I.setBounds (margin, getHeight() / 2, getWidth()/2 - (2 * margin), 160);
+        
         II.setBounds (margin + getWidth() / 2, getHeight() / 2, getWidth() / 2 - (2 * margin), 160);
         
         III.setBounds (margin, getHeight() / 2 + 160, getWidth() /2 - (2 * margin), 160);
