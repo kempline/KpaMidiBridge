@@ -8,6 +8,7 @@
 
 #include <JuceHeader.h>
 #include "MidiBridge.h"
+#include "MainWindowViewPort.h"
 
 class Application    : public juce::JUCEApplication
 {
@@ -25,7 +26,8 @@ public:
     
     void initialise (const juce::String&) override
     {
-        mainWindow.reset (new MainWindow (getApplicationName(), new KpaMidiBridge, *this));
+        //mainWindow.reset (new MainWindow (getApplicationName(), new KpaMidiBridge, *this));
+        mainWindow.reset (new MainWindow (getApplicationName(), new MainWindowViewPort, *this));
         #if defined(JUCE_IOS)
         f_AudioDeviceManager.initialiseWithDefaultDevices(0, 1);
         #endif

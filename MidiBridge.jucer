@@ -13,6 +13,8 @@
       <FILE id="rBoiXl" name="Kpa.cpp" compile="1" resource="0" file="Source/Kpa.cpp"/>
       <FILE id="bRYOWd" name="Kpa.h" compile="0" resource="0" file="Source/Kpa.h"/>
       <FILE id="WZFLTJ" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+      <FILE id="QAZ6SH" name="MainWindowViewPort.h" compile="0" resource="0"
+            file="Source/MainWindowViewPort.h"/>
       <FILE id="UuM4bN" name="MidiBridge.h" compile="0" resource="0" file="Source/MidiBridge.h"/>
     </GROUP>
   </MAINGROUP>
