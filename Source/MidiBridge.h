@@ -138,8 +138,26 @@ public:
 
     void paint (Graphics&) override {}
 
+    int estimataHeight(Rectangle<int> parentsBounds) {
+        auto minimumWidthForEffectSettings = 360;
+        auto minimumHeightForEffectSettings = 160;
+        
+        auto heightMidiInComboBox = 20;
+        auto heightBleButton = 20;
+        
+        auto estimatedHeight = 2 * minimumHeightForEffectSettings + heightMidiInComboBox + heightBleButton;
+        if(parentsBounds.getWidth() < 2 * minimumWidthForEffectSettings) {
+            estimatedHeight = 4 * minimumHeightForEffectSettings + heightMidiInComboBox + heightBleButton;
+        }
+        printf("Estimated Height: %d\n", estimatedHeight);
+        return estimatedHeight;
+    }
+    
     void resized() override
     {
+        auto localBounds = getLocalBounds();
+        
+        
         auto margin = 10;
 
         midiInputLabel.setBounds (margin, margin,
@@ -547,6 +565,8 @@ private:
     //==============================================================================
 	ApplicationProperties applicationProperties;
     Label midiInputLabel    { "Midi Input Label",  "MIDI Input:" };
+    ComboBox midiInputComboBox;
+    
     Label midiOutputLabel   { "Midi Output Label", "MIDI Output:" };
     Label incomingMidiLabel { "Incoming Midi Label", "Received MIDI messages:" };
     Label outgoingMidiLabel { "Outgoing Midi Label", "Play the keyboard to send MIDI messages..." };

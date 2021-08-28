@@ -25,8 +25,9 @@ public:
     }
     void resized() override
     {
-        auto margin = 10;
-        
+        auto localBounds = getLocalBounds();
+        auto requestedHeight = kpaMidiBridge.estimataHeight(localBounds);
+        printf("Width: %d\n", localBounds.getWidth());
         //kpaMidiBridge.setSize(500, 700);
     }
 private:
